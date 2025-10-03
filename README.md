@@ -1,5 +1,5 @@
 <div align="center">
-<img src="logo.png#gh-light-mode-only" alt="" width="450"><img src="logo.png#gh-dark-mode-only" alt="" width="450">
+<img src="logo.png" alt="" width="450">
 
 [![PyPI version](https://badge.fury.io/py/bibfixer.svg?update=20250929)](https://pypi.org/project/bibfixer/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -9,6 +9,50 @@
 </div>
 
 A Python tool that fixes and standardizes your BibTeX. It not only completes entries with accurate metadata via LLM + web search capabilities, but also enforces a consistent style based on your preferences (e.g., venue naming, title casing, author format, page ranges). This removes the tedious manual work of hunting down sources and cleaning messy entries (like those copied from Google Scholar), producing a clean, uniform bib file. A consistent style improves readability and leaves a stronger impression on readers and reviewers.
+
+## Examples
+
+Example (1) Original bib entry. Authors are missing and "ai" is not capitalized.
+```bib
+@article{bai2022constitutional,
+ author = {Bai, Yuntao and Kadavath, Saurav and Kundu, Sandipan and Askell, Amanda and Kernion, Jackson and Jones, Andy and Chen, Anna and Goldie, Anna and Mirhoseini, Azalia and McKinnon, Cameron and others},
+ journal = {arXiv preprint arXiv:2212.08073},
+ title = {Constitutional ai: Harmlessness from ai feedback},
+ year = {2022}
+}
+```
+
+With bibfixer, missing authors are added and title is capitalized properly:
+```bib
+@article{bai2022constitutional,
+  author = {Bai, Yuntao and Kadavath, Saurav and Kundu, Sandipan and Askell, Amanda and Kernion, Jackson and Jones, Andy and Chen, Anna and Goldie, Anna and Mirhoseini, Azalia and McKinnon, Cameron and Chen, Carol and Olsson, Catherine and Olah, Christopher and Hernandez, Danny and Drain, Dawn and Ganguli, Deep and Li, Dustin and Tran-Johnson, Eli and Perez, Ethan and Kerr, Jamie and Mueller, Jared and Ladish, Jeffrey and Landau, Joshua and Ndousse, Kamal and Lukosuite, Kamile and Lovitt, Liane and Sellitto, Michael and Elhage, Nelson and Schiefer, Nicholas and Mercado, Noemi and DasSarma, Nova and Lasenby, Robert and Larson, Robin and Ringer, Sam and Johnston, Scott and Kravec, Shauna and El Showk, Sheer and Fort, Stanislav and Lanham, Tamera and Telleen-Lawton, Timothy and Conerly, Tom and Henighan, Tom and Hume, Tristan and Bowman, Samuel R. and Hatfield-Dodds, Zac and Mann, Ben and Amodei, Dario and Joseph, Nicholas and McCandlish, Sam and Brown, Tom and Kaplan, Jared},
+  title = {{Constitutional AI: Harmlessness from AI Feedback}},
+  journal = {arXiv preprint arXiv:2212.08073},
+  year = {2022}
+}
+```
+
+Example (2) Original bib entry. This shows the arXiv version but the paper was published in ICML. "llm" needs to be capitalized.
+```bib
+@article{khan2024debating,
+ author = {Khan, Akbir and Hughes, John and Valentine, Dan and Ruis, Laura and Sachan, Kshitij and Radhakrishnan, Ansh and Grefenstette, Edward and Bowman, Samuel R and Rockt{\"a}schel, Tim and Perez, Ethan},
+ journal = {arXiv preprint arXiv:2402.06782},
+ title = {Debating with more persuasive llms leads to more truthful answers},
+ year = {2024}
+}
+```
+
+With bibfixer, arXiv is replaced with the conference information and appropriate title:
+```bib
+@inproceedings{khan2024debating,
+  author = {Khan, Akbir and Hughes, John and Valentine, Dan and Ruis, Laura and Sachan, Kshitij and Radhakrishnan, Ansh and Grefenstette, Edward and Bowman, Samuel R. and Rockt{\"a}schel, Tim and Perez, Ethan},
+  title = {{Debating with More Persuasive LLMs Leads to More Truthful Answers}},
+  booktitle = {Proceedings of the 41st International Conference on Machine Learning},
+  year = {2024},
+  volume = {235},
+  pages = {23662--23733}
+}
+```
 
 ## Installation
 
@@ -46,48 +90,14 @@ bibfixer -i sample_input.bib --prompt-file prompts/default.md
 
 The complete revision instructions are in `prompts/default.md`. You can edit this file to match your style or point to another file using `--prompt-file`.
 
-## Examples
+## Streamlit app
 
-Example (1) Original bib entry. Authors are missing and "ai" is not capitalized.
-```bib
-@article{bai2022constitutional,
- author = {Bai, Yuntao and Kadavath, Saurav and Kundu, Sandipan and Askell, Amanda and Kernion, Jackson and Jones, Andy and Chen, Anna and Goldie, Anna and Mirhoseini, Azalia and McKinnon, Cameron and others},
- journal = {arXiv preprint arXiv:2212.08073},
- title = {Constitutional ai: Harmlessness from ai feedback},
- year = {2022}
-}
-```
+In addition to the dependencies in `pyproject.toml`, install `streamlit>=1.30.0`.
 
-Missing authors are added and title is capitalized properly:
-```bib
-@article{bai2022constitutional,
-  author = {Bai, Yuntao and Kadavath, Saurav and Kundu, Sandipan and Askell, Amanda and Kernion, Jackson and Jones, Andy and Chen, Anna and Goldie, Anna and Mirhoseini, Azalia and McKinnon, Cameron and Chen, Carol and Olsson, Catherine and Olah, Christopher and Hernandez, Danny and Drain, Dawn and Ganguli, Deep and Li, Dustin and Tran-Johnson, Eli and Perez, Ethan and Kerr, Jamie and Mueller, Jared and Ladish, Jeffrey and Landau, Joshua and Ndousse, Kamal and Lukosuite, Kamile and Lovitt, Liane and Sellitto, Michael and Elhage, Nelson and Schiefer, Nicholas and Mercado, Noemi and DasSarma, Nova and Lasenby, Robert and Larson, Robin and Ringer, Sam and Johnston, Scott and Kravec, Shauna and El Showk, Sheer and Fort, Stanislav and Lanham, Tamera and Telleen-Lawton, Timothy and Conerly, Tom and Henighan, Tom and Hume, Tristan and Bowman, Samuel R. and Hatfield-Dodds, Zac and Mann, Ben and Amodei, Dario and Joseph, Nicholas and McCandlish, Sam and Brown, Tom and Kaplan, Jared},
-  title = {{Constitutional AI: Harmlessness from AI Feedback}},
-  journal = {arXiv preprint arXiv:2212.08073},
-  year = {2022}
-}
-```
+From the repo root, run:
 
-Example (2) Original bib entry. This shows the arXiv version but the paper was published in ICML. "llm" needs to be capitalized.
-```bib
-@article{khan2024debating,
- author = {Khan, Akbir and Hughes, John and Valentine, Dan and Ruis, Laura and Sachan, Kshitij and Radhakrishnan, Ansh and Grefenstette, Edward and Bowman, Samuel R and Rockt{\"a}schel, Tim and Perez, Ethan},
- journal = {arXiv preprint arXiv:2402.06782},
- title = {Debating with more persuasive llms leads to more truthful answers},
- year = {2024}
-}
-```
-
-arXiv is replaced with the conference information and appropriate title:
-```bib
-@inproceedings{khan2024debating,
-  author = {Khan, Akbir and Hughes, John and Valentine, Dan and Ruis, Laura and Sachan, Kshitij and Radhakrishnan, Ansh and Grefenstette, Edward and Bowman, Samuel R. and Rockt{\"a}schel, Tim and Perez, Ethan},
-  title = {{Debating with More Persuasive LLMs Leads to More Truthful Answers}},
-  booktitle = {Proceedings of the 41st International Conference on Machine Learning},
-  year = {2024},
-  volume = {235},
-  pages = {23662--23733}
-}
+```bash
+streamlit run app.py
 ```
 
 > [!WARNING]
