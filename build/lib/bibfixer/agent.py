@@ -11,16 +11,14 @@ from importlib import resources
 
 class BibFixAgent:
     def __init__(self, api_key: Optional[str] = None, prompt_file: Optional[str] = None):
-        self.api_key = api_key or os.getenv("DASHSCOPE_API_KEY")
+        self.api_key = api_key or os.getenv("OPENAI_API_KEY")
         if not self.api_key:
             raise ValueError(
-                # "OpenAI API key is required. Set OPENAI_API_KEY environment variable or pass it as argument."
-                "Aliyun API key is required. Set Aliyun_API_KEY environment variable or pass it as argument."
+                "OpenAI API key is required. Set OPENAI_API_KEY environment variable or pass it as argument."
             )
 
-        self.client = OpenAI(api_key=self.api_key, base_url="https://dashscope.aliyuncs.com/compatible-mode/v1")
-        self.model = "qwen3-max"
-        # self.model = "gpt-5-mini-2025-08-07"
+        self.client = OpenAI(api_key=self.api_key)
+        self.model = "gpt-5-mini-2025-08-07"
         self.prompt_file_path = prompt_file
 
     def _load_instructions_from_file(self) -> Optional[str]:
@@ -69,18 +67,31 @@ class BibFixAgent:
         parsed = self.parse_bibtex(bibtex_string)
         prompt = self._create_prompt(bibtex_string, parsed, user_preferences)
         try:
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "You are a precise academic assistant that corrects and completes BibTeX entries. Always return valid BibTeX format.",
-                    },
-                    {"role": "user", "content": prompt},
-                ],
-                extra_body={"enable_search": True}
+            full_prompt = (
+                """You are a precise academic assistant that corrects and completes BibTeX entries. Always return valid BibTeX format.
+
+"""
+                + prompt
             )
-            revised_bibtex = response.choices[0].message.content
+            response = self.client.responses.create(
+                model=self.model, input=full_prompt, tools=[{"type": "web_search"}]
+            )
+            revised_bibtex = None
+            if hasattr(response, "output_text"):
+                revised_bibtex = getattr(response, "output_text", None)
+            elif hasattr(response, "__iter__"):
+                for item in response:
+                    if hasattr(item, "type") and item.type == "message":
+                        if hasattr(item, "content") and item.content:
+                            for content_item in item.content:
+                                if hasattr(content_item, "text"):
+                                    revised_bibtex = content_item.text
+                                    break
+                        break
+            elif hasattr(response, "output"):
+                revised_bibtex = response.output
+            else:
+                revised_bibtex = str(response)
             if not revised_bibtex:
                 raise ValueError("Could not extract BibTeX from response")
             try:
@@ -91,7 +102,34 @@ class BibFixAgent:
                 )
             return revised_bibtex
         except Exception as e:
-            raise RuntimeError(f"Failed to call OpenAI API: {str(e)}")
+            try:
+                print(
+                    f"Note: Responses API failed ({str(e)}), falling back to chat completions API without web search",
+                    file=sys.stderr,
+                )
+                response = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": "You are a precise academic assistant that corrects and completes BibTeX entries. Always return valid BibTeX format. Use your knowledge to correct and complete the entry as best as you can.",
+                        },
+                        {"role": "user", "content": prompt},
+                    ],
+                )
+                revised_bibtex = response.choices[0].message.content
+                try:
+                    bibtexparser.loads(revised_bibtex)
+                except Exception:
+                    print(
+                        "Warning: Response may not be valid BibTeX format",
+                        file=sys.stderr,
+                    )
+                return revised_bibtex
+            except Exception as e2:
+                raise RuntimeError(
+                    f"Failed to call OpenAI API: {str(e)} | Fallback also failed: {str(e2)}"
+                )
 
     def _create_prompt(
         self, original_bibtex: str, parsed: Dict[str, Any], preferences: str

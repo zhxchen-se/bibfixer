@@ -12,7 +12,6 @@ Instructions:
    - Year: four digits.
    - Pages: use en‑dash style `123--145` when available.
    - Volume/Number: include for journal articles when available.
-   - DOI: include when available.
    - Entry type: `@article` for journals; `@inproceedings` for conference papers; `@book` for books, other types only when clearly appropriate.
 
 3) Output formatting rules
@@ -29,7 +28,7 @@ Instructions:
    - If we need to cite a web article/blog, use the access date written in the original bib entry. If the access date is missing in the original bib entry, or if it is written with a placeholder like `Accessed YYYY-MM-DD`, use the date of today.
 
 4) Fields to OMIT
-   - Do not include: URL, PDF link, editors, abstract, keywords, address, location, timestamp, bibsource in `@article` and `@proceedings`. For other types, use your best judgement.
+   - Do not include: URL, PDF link, DOI, editors, abstract, keywords in `@article` and `@proceedings`. For other types, use your best judgement.
    - If only an arXiv version exists, use `@article` and include `title`, `author`, `journal`, and `year`. For the `journal`, write `arXiv preprint arXiv:{ID}`, where you should write the arXiv ID for the placeholder.
 
 5) If uncertain

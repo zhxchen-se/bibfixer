@@ -17,26 +17,38 @@ st.caption("Fix and complete BibTeX entries using GPT with web search.")
 
 with st.sidebar:
     st.header("Settings")
+    # api_key = st.text_input(
+    #     "OpenAI API Key",
+    #     type="password",
+    #     placeholder="Enter your OpenAI API key here",
+    #     help="Used for OpenAI API. Not stored.",
+    #     value=os.getenv("OPENAI_API_KEY", ""),
+    # )
+    
     api_key = st.text_input(
-        "OpenAI API Key",
+        "Aliyun Key",
         type="password",
-        placeholder="Enter your OpenAI API key here",
-        help="Used for OpenAI API. Not stored.",
-        value=os.getenv("OPENAI_API_KEY", ""),
+        placeholder="Enter your Aliyun API key here",
+        help="Used for Aliyun API. Not stored.",
+        value=os.getenv("DASHSCOPE_API_KEY", ""),
     )
 
     model_friendly = st.selectbox(
         "Model",
-        options=["gpt-5-mini", "gpt-5-nano", "gpt-4.1"],
+        options=["qwen3-max-2025-09-23", "qwen3-max", "gpt-5-mini", "gpt-5-nano", "gpt-4.1"],
         index=0,
-        help="Select the model to use. Default is gpt-5-mini.",
+        help="Select the model to use. Default is qwen3-max.",
     )
+
     model_map = {
+        "qwen3-max-2025-09-23": "qwen3-max-2025-09-23",
+        "qwen3-max": "qwen3-max",
         "gpt-5-mini": "gpt-5-mini-2025-08-07",
         "gpt-5-nano": "gpt-5-nano-2025-08-07",
         "gpt-4.1": "gpt-4.1",
     }
-    selected_model = model_map.get(model_friendly, "gpt-5-mini-2025-08-07")
+
+    selected_model = model_map.get(model_friendly, "qwen3-max-2025-09-23") # type: ignore
 
     preferences = st.text_area(
         "Formatting Preferences",
